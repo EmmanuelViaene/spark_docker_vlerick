@@ -1,7 +1,7 @@
 # Building solid data pipelines with PySpark
 
 📚 A course brought to you by the [Data Minded Academy].
-
+hallo 
 ## Context
 
 These are the exercises used in the course *Building solid data pipelines with
