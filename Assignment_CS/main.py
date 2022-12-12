@@ -1,5 +1,6 @@
 from pyspark import SparkConf
 from pyspark.sql import SparkSession
+from pyspark.sql.types import *
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -76,4 +77,29 @@ rfreg = RandomForestRegressor(max_depth=10, min_samples_leaf =1, random_state=0)
 array_pred = np.round(rfreg.predict(x_val),0)
 y_pred = pd.DataFrame({"y_pred": array_pred},index=x_val.index) #index must be same as original database
 val_pred = pd.concat([y_val,y_pred,x_val],axis=1)
-print(val_pred)
+
+def equivalent_type(f):
+    if f == 'datetime64[ns]': return TimestampType()
+    elif f == 'int64': return LongType()
+    elif f == 'int32': return IntegerType()
+    elif f == 'float64': return DoubleType()
+    elif f == 'float32': return FloatType()
+    else: return StringType()
+
+def define_structure(string, format_type):
+    try: typo = equivalent_type(format_type)
+    except: typo = StringType()
+    return StructField(string, typo)
+
+
+def pandas_to_spark(pandas_df):
+    columns = list(pandas_df.columns)
+    types = list(pandas_df.dtypes)
+    struct_list = []
+    for column, typo in zip(columns, types): 
+      struct_list.append(define_structure(column, typo))
+    p_schema = StructType(struct_list)
+    return spark.createDataFrame(pandas_df, p_schema)
+
+val_pred = pandas_to_spark(val_pred)
+val_pred.write.json(f"s3a://{BUCKET}/vlerick/emmanuel_viaene_2/")

@@ -1,23 +1,19 @@
-# Use an official Python runtime as a parent image
-FROM gcr.io/datamechanics/spark:platform-3.1-dm14
+FROM python:3.9
 
-ENV PYSPARK MAJOR PYTHON VERSION=3
+WORKDIR /app
 
-#create non-root user
-#RUN sudo useradd -ms /bin/bash python-api
-#USER python-api
+COPY . /app
+ 
+RUN pip install -r requirements.txt
 
-# Set the working directory to /repo
-WORKDIR /repo
+RUN apt-get update && \
+    apt-get install -y default-jdk && \
+    apt-get install -y ant && \
+    apt-get clean;
 
-# Copy the current directory contents into the container at /app
-COPY . /repo
-
-# Install any needed packages specified in requirements.txt
-RUN python -m pip install -r requirements.txt
-RUN pip install -y openjdk-8-jdk python3-venv bin/bash python-api
-
-# define the command to run when the container is started
 EXPOSE 8080
-ENTRYPOINT [ "python" ]
-CMD ["main.py]
+
+ENV NAME World
+
+CMD ["python", "/app/main.py"]
+
