@@ -3,17 +3,20 @@ FROM python:3.9
 WORKDIR /app
 
 COPY . /app
- 
-RUN pip install -r requirements.txt
+
+USER root
 
 RUN apt-get update && \
     apt-get install -y default-jdk && \
     apt-get install -y ant && \
     apt-get clean;
 
-EXPOSE 8080
+RUN useradd -ms /bin/bash python-api
+USER python-api
 
-ENV NAME World
+RUN pip install -r requirements.txt
+
+EXPOSE 8080
 
 CMD ["python", "/app/main.py"]
 

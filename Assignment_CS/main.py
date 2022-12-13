@@ -5,16 +5,28 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
+import os
 
 BUCKET = "dmacademy-course-assets"
 file_pre = "vlerick/pre_release.csv"
 file_after = "vlerick/after_release.csv"
 
+# Check if there are credentials in the environment
 
-config = {
-    "spark.jars.packages": "org.apache.hadoop:hadoop-aws:3.3.1",
-    "spark.hadoop.fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider",
-}
+if 'AWS_SECRET_ACCESS_KEY' in os.environ:
+    print("credentials are present in the environment")
+    config = {
+        "spark.jars.packages": "org.apache.hadoop:hadoop-aws:3.3.1",
+        "spark.hadoop.fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider",
+    }
+else:
+    print("no credentials in the environment")
+    config = {
+        "spark.jars.packages": "org.apache.hadoop:hadoop-aws:3.3.1",
+        "spark.hadoop.fs.s3a.aws.credentials.provider": "com.amazonaws.auth.InstanceProfileCredentialsProvider",
+    }
+    
+
 conf = SparkConf().setAll(config.items())
 spark = SparkSession.builder.config(conf=conf).getOrCreate()
 
@@ -102,4 +114,4 @@ def pandas_to_spark(pandas_df):
     return spark.createDataFrame(pandas_df, p_schema)
 
 val_pred = pandas_to_spark(val_pred)
-val_pred.write.json(f"s3a://{BUCKET}/vlerick/emmanuel_viaene")
+val_pred.write.json(f"s3a://{BUCKET}/vlerick/emmanuel_viaene4/predicitons.json")
