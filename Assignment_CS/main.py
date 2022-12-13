@@ -114,4 +114,4 @@ def pandas_to_spark(pandas_df):
     return spark.createDataFrame(pandas_df, p_schema)
 
 val_pred = pandas_to_spark(val_pred)
-val_pred.write.json(f"s3a://{BUCKET}/vlerick/emmanuel_viaene4/predicitons.json")
+val_pred.write.json(f"s3a://{BUCKET}/vlerick/emmanuel_viaene_final/predicitons.json", mode="overwrite")
